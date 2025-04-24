@@ -1,0 +1,14 @@
+{
+  "id": "0g21KSbUokI4qYFI",
+  "name": "Kubernetes Credentials account",
+  "type": "kubernetesCredentialsApi",
+  "data": {
+    "loadFrom": "",
+    "content": ""
+  },
+  "ownedBy": {
+    "type": "team",
+    "teamId": "6iS5I7k7UsluxX9r",
+    "teamName": "RND"
+  }
+}

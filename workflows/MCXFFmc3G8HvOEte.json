@@ -1,0 +1,227 @@
+{
+  "id": "MCXFFmc3G8HvOEte",
+  "name": "#4 Согласование заявки",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Заявка",
+        "formDescription": "Можешь создать заявку на подключение услуги",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Поле1",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Поле2",
+              "placeholder": "Заполни"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -320,
+        -40
+      ],
+      "id": "e5be882d-e9bd-4b22-8f9d-37a6df814023",
+      "name": "On form submission",
+      "webhookId": "d4b11620-5e5c-4ebc-93a8-4848ea33767a"
+    },
+    {
+      "parameters": {
+        "content": "## URL \n\nhttps://n8n.t1-dev.ru/form/d4b11620-5e5c-4ebc-93a8-4848ea33767a"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -220
+      ],
+      "id": "753bee3f-1e09-45d0-8231-44ff40201cb7",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $vars.tgChatId }}",
+        "message": "=Согласуй заявку\n\n{{ $json['Поле1'] }}\n{{ $json['Поле2'] }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "✅ Согласовать",
+            "disapproveLabel": "❌ Отклонить"
+          }
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        60,
+        -180
+      ],
+      "id": "45ac59ab-2d33-4153-a730-bbdc823c77af",
+      "name": "Telegram",
+      "webhookId": "b210846a-ceca-4048-a2ba-b01938d6eb32",
+      "credentials": {
+        "telegramApi": {
+          "id": "9GdrwfllJCzhPEKR",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a16ded56-8004-47f9-b6e2-1e2b17b66fc0",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        -260
+      ],
+      "id": "f09a0962-c675-432f-8773-7bce73f89f1b",
+      "name": "Проверить ответ"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $vars.tgChatId }}",
+        "text": "=Согласовано",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        600,
+        -400
+      ],
+      "id": "03ac9327-a25b-4360-ae30-2056be436db9",
+      "name": "Отчет о согласовании",
+      "webhookId": "1dd953d7-09d1-4675-9b7a-263da3b8278a",
+      "credentials": {
+        "telegramApi": {
+          "id": "9GdrwfllJCzhPEKR",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $vars.tgChatId }}",
+        "text": "=Не согласовано",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        600,
+        -100
+      ],
+      "id": "bb4d4a97-8cd5-404b-ae7b-0bd5bc1868ee",
+      "name": "Отчет о согласовании1",
+      "webhookId": "1dd953d7-09d1-4675-9b7a-263da3b8278a",
+      "credentials": {
+        "telegramApi": {
+          "id": "9GdrwfllJCzhPEKR",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Чат TG куда шлет бот \n\nhttps://t.me/+DqL75PrpI-hjOWI6"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        -520
+      ],
+      "typeVersion": 1,
+      "id": "a12acad7-22c1-43cb-abb5-9f18d4e5c7ff",
+      "name": "Sticky Note1"
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "Проверить ответ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Проверить ответ": {
+      "main": [
+        [
+          {
+            "node": "Отчет о согласовании",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Отчет о согласовании1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "triggerCount": 1,
+  "versionId": "6ff959df-7cdf-4948-b5e9-636e1ac90817",
+  "owner": {
+    "type": "team",
+    "teamId": "6iS5I7k7UsluxX9r",
+    "teamName": "RND"
+  },
+  "parentFolderId": null
+}

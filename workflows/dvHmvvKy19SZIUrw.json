@@ -1,0 +1,239 @@
+{
+  "id": "dvHmvvKy19SZIUrw",
+  "name": "#2 Kubernetes Deploy",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -580,
+        -60
+      ],
+      "id": "3d4fdbad-3089-43c5-a802-331e8931e83f",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://raw.githubusercontent.com/vaishutin/n8ndemo/refs/heads/main/nginx-deployment.yml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -320,
+        -220
+      ],
+      "id": "9d3e5801-42bd-472f-b95f-812acf1bb4da",
+      "name": "Получаем шаблон манифеста"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"params\": {\n    \"appName\" : \"nginx\",\n    \"namespace\" : \"default\",\n    \"repicas\" : 2\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        60
+      ],
+      "id": "087aa3e1-f8a9-42a4-9d45-270c4001c7f6",
+      "name": "Устанавливаем переменные"
+    },
+    {
+      "parameters": {
+        "jsCode": "const nunjucks = require('nunjucks');\n\n// Получаем содержимое файла из предыдущего узла\nconst templateContent = $input.first().json.data\n\n// Определяем переменные для подстановки\nconst variables = $input.first().json.params\nconsole.log(variables)\n// Рендеринг шаблона\nconst renderedContent = nunjucks.renderString(templateContent, variables);\n\n// Возвращаем результат\nreturn [{ json: { renderedContent } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        340,
+        -200
+      ],
+      "id": "6b3b8391-a3ba-4465-b5b6-143093faf40e",
+      "name": "Подставляем переменные в шаблон",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        80,
+        -80
+      ],
+      "id": "d9b96fa9-59c4-4886-a479-06e6cf19a823",
+      "name": "Объединяем входные данные",
+      "notesInFlow": true,
+      "notes": "Можно было просто последовательно сделать получение шаблона и установку переменных"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $vars.tgChatId }}",
+        "text": "=```yaml\n{{ $json.renderedContent }}\n```",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        680,
+        -380
+      ],
+      "id": "1d9b1a65-8e9a-49ba-a998-ab253077e7aa",
+      "name": "Шаблон в telegram",
+      "webhookId": "be11fbec-175b-4542-a206-0c3e7d76ac8b",
+      "credentials": {
+        "telegramApi": {
+          "id": "9GdrwfllJCzhPEKR",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "17b5c7df-1b6e-44fc-b843-f17e645f6139",
+              "name": "kubeconfig",
+              "value": "apiVersion: v1\nclusters:\n  - cluster:\n      certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJQlE4UHowNTQ3WmN3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRBeU1qWXhOVFV4TXpsYUZ3MHpOVEF5TWpReE5UVTJNemxhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURML1FSb3dVNkJqN0JSZHowckl3UFdrZFBQdVJXQmhDUjY2NHpRWWR1YVNOb2V6V0ZDZ0dTaS8yMGMKY2YzUGk4RlNVeHYyb0hpbTh3cWxaVE45b0FTeEsrVGFPeW9SK1Z4enoycFhxWWNmb0ZkbTRaaWdmU2JSbjErQwo5em41d0NoL1NRNkt3WDBZV3NsbUQ5dUNXbnlNUGhVOUE1UlZqS0VGUmd4WGtxem5tL016Q0hDM2Y5eDEraTJWCkpRNEIrV0NUc2F6YVhIOTM2cnMxNmtoRHN0UDBqSE14OW9POUgrcm44L3VWa1VLL0hmUFdUMGw4OFZPcFp2cnEKSy9nT3g1dWVBT1NrTEtCckJ3Q0dMeXFQOGIwbHR4bTBGRW55c1FQMEJpR3BZd3JzS0p1ejVwVHpvSFJiN0U3OAp3RG9wUjhJd1hWRXpzTUhvNjRxVFA5eFBOMjhiQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJRcGRBVGF4SkpaeDlwdSttS1pFUmRCVUN4SXB6QVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ3BNUUZHVjdiZgpNbWYyKy9HWGlpMXpzL2taaXBrUFd2ekxMYS85aXJnbUdrc1lLVGtURFh6WldxTElSdStOOTZreE9iSkpiRDNVCng5eUQ3RGk5b2g5dkdwUGQ4KzlNWlpMd0hWQndOMG5SeEdUV3p6Qzh5VW1HMmttMlk5QXliWXdGVy85ekVMcisKSkNEdC9ncElXUGR1bXFBanRyeUNqWVdDUmFycDQzN3BNNzJ3YXVqWC9IRk8wdk02Y2IvM0VMTVZnMGx5ZndJRQpJdVRYdWJINTdHOEIzRFdzMVBiK3ZLc2JLZEFzQmFXYzRnbkRVdXhPZDlQTXhGdzNaa3ZYMVR5QU5qL3hVL1JFClN4Vkg5eFVld0xJZ0pqZlAxM010MERIbXdEOUpZT3M4OVdZU0owTkJMMzVYZm40UytQVkF3bm1lQ0tlUDgzU0kKSUxtbFFEUlVsMlZYCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n      server: https://80.85.250.250:6443\n    name: pulp3-demo\ncontexts:\n  - context:\n      cluster: pulp3-demo\n      user: kubernetes-admin\n    name: kubernetes-admin@pulp3-demo\ncurrent-context: kubernetes-admin@pulp3-demo\nkind: Config\npreferences: {}\nusers:\n  - name: kubernetes-admin\n    user:\n      client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLVENDQWhHZ0F3SUJBZ0lJV1QzUTJGOCtZWDR3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRBeU1qWXhOVFV4TXpsYUZ3MHlOakF5TWpZeE5UVTJORE5hTUR3eApIekFkQmdOVkJBb1RGbXQxWW1WaFpHMDZZMngxYzNSbGNpMWhaRzFwYm5NeEdUQVhCZ05WQkFNVEVHdDFZbVZ5CmJtVjBaWE10WVdSdGFXNHdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEaGdVdDEKeGxiSThweGFuMDQ2dEFjV1dhNWZFbXRiU2tvaVViWGdMUGJtUk9ySnVjc1J6ays1YnpkUGovVFo0RTJuMk9aVApFYmR1N0dnY2pOUThkb0hKTUM0NElJTFNWeXRYR3lNcFU0dGxRbUxBczNVKzdSc25yV05XOUNRakFJbTB1Y1M1Ck1rSVBtRWNkeDlIcXJkenF6ZTgvNUdBSDR1QXJOM1l3MldHSVFraHlJbko5MkxlcGU2djBoa2Z3NFNoaFFYM3YKZFdicXkyYWZjVzhOVFRiS3pNbEFoVkRtVklvWUVNM25tVXVCNndCcW0yK3JkWlNuZ0tWa0ZoSkRnOVRlRU5mZgpCeitib0tIbmE3SG1sSTU1V2tQVEVBZ1YrYXFFbXVxaVdoRHRyTkU0ZDAvM1pad0pNWlJsYzUxblRlcWRoZG9xCm1kcFZoc2s5NU5yb1JGZVJBZ01CQUFHalZqQlVNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUsKQmdnckJnRUZCUWNEQWpBTUJnTlZIUk1CQWY4RUFqQUFNQjhHQTFVZEl3UVlNQmFBRkNsMEJOckVrbG5IMm03NgpZcGtSRjBGUUxFaW5NQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUFGM21qeStuQmpaRnFJMyt0Q000SFhLYmdNCkFNdi9rd2RQS1pmeU9JMlU5cHg5cUVYLzRvaHlUUWJ5VkVEY2xVMTRhc2lyeEVxWGdYV3lSTHptSytTWFNYekgKTExWMGttMEF2Qmc3N1k5SFZodmVQaERaS1p0N1cxQk1rRXpRZGsxOTY3VWJDU1ZzUXBJKzJWUVhLWTBkbW5jVApEaUtBWGw5ZTNrRVZackZ6S091cDRxaDU2eTFmelA5OHcvRXVjMnlEVlJkaFVMaGJjakhPeGdRbnJxakNxTTFxCmZMLzhGRHlGNU1LcG0vOG51RkJJUXJGTVVvUG9RMHlvc041SXNRcjY2NzFMZFJBNzNiVXFZa0F1Z0FrNFNKakwKWXNQQlQrQ3pwRGdXZ2V0VnpYd3A5UC9kSCtXYjB3VmxXcVJGOVVRRkVzNGVneGU4SHBqM0FKczJvTm5DCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K\n      client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBNFlGTGRjWld5UEtjV3A5T09yUUhGbG11WHhKclcwcEtJbEcxNEN6MjVrVHF5Ym5MCkVjNVB1VzgzVDQvMDJlQk5wOWptVXhHM2J1eG9ISXpVUEhhQnlUQXVPQ0NDMGxjclZ4c2pLVk9MWlVKaXdMTjEKUHUwYko2MWpWdlFrSXdDSnRMbkV1VEpDRDVoSEhjZlI2cTNjNnMzdlArUmdCK0xnS3pkMk1ObGhpRUpJY2lKeQpmZGkzcVh1cjlJWkg4T0VvWVVGOTczVm02c3RtbjNGdkRVMDJ5c3pKUUlWUTVsU0tHQkRONTVsTGdlc0FhcHR2CnEzV1VwNENsWkJZU1E0UFUzaERYM3djL202Q2g1MnV4NXBTT2VWcEQweEFJRmZtcWhKcnFvbG9RN2F6Uk9IZFAKOTJXY0NUR1VaWE9kWjAzcW5ZWGFLcG5hVlliSlBlVGE2RVJYa1FJREFRQUJBb0lCQUhjWWhmWHBqaVFLbmJEdQp1YTRmTGk4THBoL241bk1NUlNMaTdKODhvQmoxQk5zTkdNYUtvMmhYNkdwSXFSUDRkb3JTN3JHb2hhdzdockN0Clg5bWU3T1NJWWFDYTZ2eVR0UHdJQlFYcWJaQkpBMGFxZ0oxL00vdzhnbDZHQ2gvQ1JQZ0J0SGZxcHlEOVYzSE8KK25wcTRHWFI1UzFsTzZKdW05MjNLT0NicmZyN3FHK01uMFFUNDh2TFZYM0NPY1NCbGU0Y2YzcWNQOC9wNmQwVgpmZlIwRmNTOEtsTWFjQXg3bGk5UHRQOU5Nd1ZibEJIcm5HV3JqZ3BmTXY1R0grY25DZmNoWXo5cGhzanM2MHprCkxGczdTcUlwMFJCYVZZd3djUWkzMHFzZ1dFL3BPdHhEOTNWUnJScW40U21FTkhZMUY2SGdQWUJzbVRJYlVwVkwKc25vMk9sRUNnWUVBNGtDM280ZzBmeUFsbFIwQnlla1ZrbG90OGo1SDhmVTdKZkFZUURleGRjUTFUR0U0ZDZVQQpCNWdaZlVqZGphYkRQOFJwNjVLUVlMbDlaMkNibDJZWXFnMC9MM0FFRWk2ckQ0OStlQVhBV3M1T1dNcU1WOTVJClViaGNJUVVlaUZjV2czUE1mNUFKUFVIeDlOajRqZFpqeUJ2KzU3TGhGR3h5V0xaS2ZxWCtIYmNDZ1lFQS95ZG8KM1ZVdGxlRTlkd1BXa0o2SlJJMXZHWTh2ci9yMi9SY2pRYUxhMTdZaXNWVURnMi9QbjQrRGk4d3dmelNaK0ZqTgpGa1NRTlBzRlhMM2JQSnUvVzdRdmRHckdxTjI5YXQwUVJuVFE5cGY5aTZLQ1p2STJVcXBHZEdNaWVxYlk5OWVOCkhOZVpMZWE0UmM2SXZud3A5MEtadlFDZ1MxRy9obktjT2RaWHRQY0NnWUJrRXpRbkJVd1RIdWtBdDcvZXkxWmIKVWNBWThpdG9mb3dYRDhmcVA3Z2kyeEtvSWlpVDQwdk1FQjdXSjdDM3d4ZUIwU0w0cSs5b21TTTY0cVJ2cHgwcAp1b3BFTlV2WHJ3VEM4VG1EWlNmY0FuenRFVXBhWTF1aHFlWTJSTWxvalB6TVVDQVlIR0c1MHIxdkM3bUZJMXNuClhCcTM2WXRkT1VxcXFwYnd4Z05NcVFLQmdRRDZibS9hYlhQa204SjhRZVFpNWJmTTlSU0tmYU5Na29KQlBxaDQKRDZQRC9SeG4rUTBOd0h5RUc1UDlibGhiUWdHdFkxdEg4OXVtWklxSzBEMlNhenVTZ25QaFM3dlltbXNEckI0QgpTVDZnQ2VYdFczK3FFeW1HVVdIOWNoK3hTbm5DS0dwMFdKZ2NHVXZjR0M3VzUzODVGTUZZWkhqdjlEaUxlWW9rCnFtQkRXUUtCZ1FDTWZEL1dmWEVwQXRIU29RN3JaeDM3Z2t4b0ZmZWJwLzkyOXUzd1dIUnA2ekxDYmg2cUM0cFUKK3oxOEZQTnhMeXJncCtFZm5RdlBjcFptYk1helZzbUxYbTV3SFJzbzd0QzNxcDhiVHgyTkZRNXM2Q0k0WVJzbQpGbXlKSkRRZHdmdjJQRHdRYVdqb3A3VEh2VXVONVh3L0JVaDRIbldqVWZVTWgwUHVxVXJrT3c9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        660,
+        -20
+      ],
+      "id": "197bec7a-1167-497b-94ef-980afc8192f4",
+      "name": "кубконфиг"
+    },
+    {
+      "parameters": {
+        "command": "=echo \"{{ $json.kubeconfig }}\" >> ./kubeconfig\nset KUBECONFIG=./kubeconfig\n\necho \"{{ $('Подставляем переменные в шаблон').item.json.renderedContent }}\" >> ./manifest\n\nkubectl --kubeconfig=./kubeconfig apply -f ./manifest"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        920,
+        100
+      ],
+      "id": "9be63a57-ca1e-4957-9edc-63098ed28fe0",
+      "name": "Задеплоить в кубер"
+    },
+    {
+      "parameters": {
+        "content": "## Чат TG куда шлет бот \n\nhttps://t.me/+DqL75PrpI-hjOWI6"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        920,
+        -460
+      ],
+      "typeVersion": 1,
+      "id": "d47d6261-e09c-4145-9882-4b88ea53896e",
+      "name": "Sticky Note"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Получаем шаблон манифеста",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Устанавливаем переменные",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Получаем шаблон манифеста": {
+      "main": [
+        [
+          {
+            "node": "Объединяем входные данные",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Устанавливаем переменные": {
+      "main": [
+        [
+          {
+            "node": "Объединяем входные данные",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Объединяем входные данные": {
+      "main": [
+        [
+          {
+            "node": "Подставляем переменные в шаблон",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Подставляем переменные в шаблон": {
+      "main": [
+        [
+          {
+            "node": "Шаблон в telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "кубконфиг",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "кубконфиг": {
+      "main": [
+        [
+          {
+            "node": "Задеплоить в кубер",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "triggerCount": 0,
+  "versionId": "6512ee7a-17ed-46f7-acf9-df3cda5b24bd",
+  "owner": {
+    "type": "team",
+    "teamId": "6iS5I7k7UsluxX9r",
+    "teamName": "RND"
+  },
+  "parentFolderId": null
+}

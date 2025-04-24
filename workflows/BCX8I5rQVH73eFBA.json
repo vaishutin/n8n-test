@@ -1,0 +1,157 @@
+{
+  "id": "BCX8I5rQVH73eFBA",
+  "name": "#3 REST API",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ohdyPOQY7R1RsaQC",
+          "mode": "list",
+          "cachedResultName": "RND — #1 Telegram Send"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -40,
+        -160
+      ],
+      "id": "9ff2dfc9-2785-4101-8240-c1d79a91dbb4",
+      "name": "Отправить ip клиента в телегу"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        360,
+        60
+      ],
+      "id": "fd56f87e-3b89-4cec-8bd2-b1ffd668e2d1",
+      "name": "Ответить на REST запрос"
+    },
+    {
+      "parameters": {
+        "path": "test1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        40
+      ],
+      "id": "a5f492e7-2ebc-40ce-b520-e9bce5d14902",
+      "name": "Слушаем эндпоинт",
+      "webhookId": "ab81c972-7847-4806-8a4f-12ccee90f73c"
+    },
+    {
+      "parameters": {
+        "content": "## Чат TG куда шлет бот \n\nhttps://t.me/+DqL75PrpI-hjOWI6"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        80
+      ],
+      "typeVersion": 1,
+      "id": "09ba9565-fbd9-4dfb-bf7a-4a760dbb68da",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## URL \n\nОткрыть в браузере\nhttps://n8n.t1-dev.ru/webhook/test1"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        200
+      ],
+      "id": "44c7e90d-c3d4-4ee2-850b-a66d777e4aec",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a2ebc002-91be-4897-82b3-d7e5cc7b5e52",
+              "name": "client",
+              "value": "={{ $json.headers['x-real-ip'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -260,
+        -160
+      ],
+      "id": "eb0fa985-394b-4ad7-a766-062b7ef18ddf",
+      "name": "Достать IP клиента"
+    }
+  ],
+  "connections": {
+    "Отправить ip клиента в телегу": {
+      "main": [
+        [
+          {
+            "node": "Ответить на REST запрос",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Слушаем эндпоинт": {
+      "main": [
+        [
+          {
+            "node": "Достать IP клиента",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Достать IP клиента": {
+      "main": [
+        [
+          {
+            "node": "Отправить ip клиента в телегу",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "triggerCount": 1,
+  "versionId": "bcfbf846-db71-4634-9d83-0f149623a907",
+  "owner": {
+    "type": "team",
+    "teamId": "6iS5I7k7UsluxX9r",
+    "teamName": "RND"
+  },
+  "parentFolderId": null
+}

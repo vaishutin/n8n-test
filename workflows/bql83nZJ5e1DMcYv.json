@@ -1,0 +1,237 @@
+{
+  "id": "bql83nZJ5e1DMcYv",
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "a3962ed9-dada-474b-b86a-70265cdbdd9b",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -20,
+        0
+      ],
+      "id": "886315ea-13cc-4c94-882e-72e1094341ee",
+      "name": "Wait",
+      "webhookId": "5f6bcb6b-98ae-43f2-aba0-b560f690a26a"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor item in _input.all():\n  item.json.myNewField = 1\nreturn _input.all()\nprint('azazaza')"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "id": "c06c41d4-7e5b-46a6-8ea3-fd729f370b2c",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "081c717c-163c-4301-ad57-ed1eedb46bc0",
+              "leftValue": "={{ $json.name3 }}",
+              "rightValue": "kokos",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        420,
+        0
+      ],
+      "id": "5014ddf6-759e-4bea-8b2b-da34d67bc284",
+      "name": "If",
+      "retryOnFail": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d8fb8868-efa4-4088-b23f-2678dfcb3206",
+              "name": "nik",
+              "value": "1",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        -100
+      ],
+      "id": "64899f7e-777b-43aa-96a0-cde52ed59913",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d8fb8868-efa4-4088-b23f-2678dfcb3206",
+              "name": "nik",
+              "value": "1",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        120
+      ],
+      "id": "43a03223-fb94-4168-ab48-d07fcea5d9b5",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d8fb8868-efa4-4088-b23f-2678dfcb3206",
+              "name": "nik2",
+              "value": "1",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        860,
+        -100
+      ],
+      "id": "eb247ef6-b001-4b5e-a468-9f0d4f40ed1f",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        140
+      ],
+      "id": "3d382a2a-8c7f-4686-a24b-bd3a82431d45",
+      "name": "Sticky Note"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "triggerCount": 0,
+  "versionId": "0258f72d-094b-4eb9-a488-5ba607fe3356",
+  "owner": {
+    "type": "team",
+    "teamId": "fdHTObvhXlLQ1t4o",
+    "teamName": "Nikulochkin"
+  },
+  "parentFolderId": null
+}

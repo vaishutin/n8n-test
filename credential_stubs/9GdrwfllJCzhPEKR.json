@@ -1,0 +1,13 @@
+{
+  "id": "9GdrwfllJCzhPEKR",
+  "name": "Telegram account",
+  "type": "telegramApi",
+  "data": {
+    "accessToken": ""
+  },
+  "ownedBy": {
+    "type": "team",
+    "teamId": "6iS5I7k7UsluxX9r",
+    "teamName": "RND"
+  }
+}

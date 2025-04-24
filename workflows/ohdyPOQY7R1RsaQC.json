@@ -1,0 +1,80 @@
+{
+  "id": "ohdyPOQY7R1RsaQC",
+  "name": "#1 Telegram Send",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        -40
+      ],
+      "id": "a16d356f-54e8-44fc-90d4-c899a9df1afc",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $vars.tgChatId }}",
+        "text": "=Hello 1\n{{ $input.item.json.toJsonString() }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -60,
+        -80
+      ],
+      "id": "e6b6dd91-65d8-447d-a66a-df852d8bcfa9",
+      "name": "Telegram",
+      "webhookId": "61f2f022-04af-425b-9c2c-2973f31c43e5",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "9GdrwfllJCzhPEKR",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Чат TG куда шлет бот \n\nhttps://t.me/+DqL75PrpI-hjOWI6"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -380,
+        80
+      ],
+      "typeVersion": 1,
+      "id": "0d83d4bd-b104-4e3a-b710-9627871f6c2b",
+      "name": "Sticky Note"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "triggerCount": 0,
+  "versionId": "9e7b0492-03e2-45c4-aa2a-c232f6e14880",
+  "owner": {
+    "type": "team",
+    "teamId": "6iS5I7k7UsluxX9r",
+    "teamName": "RND"
+  },
+  "parentFolderId": null
+}
